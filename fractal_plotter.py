@@ -5,7 +5,7 @@ import numpy as np
 import argparse
 
 parser = argparse.ArgumentParser(description='Draw a fractal')
-parser.add_argument('--fractal_type', default='tree', choices=['tree', 'snowflake', 'fern', 'mandelbrot'],
+parser.add_argument('--fractal_type', default='tree', choices=['tree', 'snowflake', 'fern', 'mandelbrot', 'julia'],
                     help='Choose a fractal type.')
 
 args = parser.parse_args()
@@ -73,6 +73,23 @@ def mandelbrot_set(x, y, iterations):
          m[i, j] = count    
    return m
 
+def julia_set(cols, rows, iterations):
+  # top left to bottom right
+  y, x = np.ogrid[1.4: -1.4: cols*1j, -1.4: 1.4: rows*1j]
+  z_array = x + y*1j
+  a = -0.744 + 0.148j
+  count = iterations + np.zeros(z_array.shape)
+  for h in range(cols):
+    for w in range(rows):
+      z = z_array[h][w]
+      for i in range(iterations):
+        z = z**2 + a
+        if abs(z) > 4:
+          count[h][w] = i
+          break
+
+  return count
+
 if __name__ == "__main__":
   
   if args.fractal_type == 'tree':
@@ -101,7 +118,6 @@ if __name__ == "__main__":
     turtle.mainloop()
 
   elif args.fractal_type == 'fern':
-
     iterations = 50000
     # create fern set
     x, y = fern_set(iterations)
@@ -110,8 +126,7 @@ if __name__ == "__main__":
     plt.axis("off")
     plt.show()
 
-  else:
-  #elif args.fractal_type == 'mandelbrot':
+  elif args.fractal_type == 'mandelbrot':
     # initialize rows, columns and iterations
     rows = 1000
     cols = 1000
@@ -121,7 +136,15 @@ if __name__ == "__main__":
     y = np.linspace(-1, 1, cols)
     # create our mandelbrot set
     m = mandelbrot_set(x, y, iterations) 
-    # best colors: binary, hot, bone, magma
+    # best colors: binary, hot, bone, magma, 'twilight_shifted'
     plt.imshow(m.T, cmap = "magma")
     plt.axis("off")
+    plt.show()
+
+  else:
+    rows = 1000
+    cols = 1000
+    iterations = 150
+    plt.imshow(julia_set(cols, rows, iterations), cmap='hot') #cmap='twilight_shifted')
+    plt.axis('off')
     plt.show()
